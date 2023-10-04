@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id               BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  firstName        String             @db.VarChar(100)
+  lastName         String             @db.VarChar(100)
+  email            String             @unique @db.VarChar(100)
+  mobile           String             @db.VarChar(100)
+  password         String             @db.VarChar(200)
+  otp              String             @db.VarChar(200)
+  createdAt        DateTime           @default(now()) @db.Timestamp(0)
+  updatedAt        DateTime           @default(now()) @db.Timestamp(0)
+  customers        customers[]
+  categories       categories[]
+  products         products[]
+  invoices         invoices[]
+  invoice_products invoice_products[]
+}
+
+model customers {
+  id        BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  name      String     @db.VarChar(100)
+  email     String     @unique @db.VarChar(100)
+  mobile    String     @db.VarChar(100)
+  user_id   BigInt     @db.UnsignedBigInt
+  users     users      @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdAt DateTime   @default(now()) @db.Timestamp(0)
+  updatedAt DateTime   @default(now()) @db.Timestamp(0)
+  invoices  invoices[]
+}
+
+model categories {
+  id        BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  name      String     @db.VarChar(100)
+  user_id   BigInt     @db.UnsignedBigInt
+  users     users      @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdAt DateTime   @default(now()) @db.Timestamp(0)
+  updatedAt DateTime   @default(now()) @db.Timestamp(0)
+  products  products[]
+}
+
+model products {
+  id               BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  name             String             @db.VarChar(100)
+  price            String             @db.VarChar(100)
+  unit             String             @db.VarChar(100)
+  img_url          String             @db.VarChar(100)
+  category_id      BigInt             @db.UnsignedBigInt
+  categories       categories         @relation(fields: [category_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  user_id          BigInt             @db.UnsignedBigInt
+  user             users              @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdAt        DateTime           @default(now()) @db.Timestamp(0)
+  updatedAt        DateTime           @default(now()) @db.Timestamp(0)
+  invoice_products invoice_products[]
+}
+
+model invoices {
+  id               BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  total            String             @db.VarChar(100)
+  discount         String             @db.VarChar(100)
+  payable          String             @db.VarChar(100)
+  user_id          BigInt             @db.UnsignedBigInt
+  users            users              @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  customer_id      BigInt             @db.UnsignedBigInt
+  customers        customers          @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdAt        DateTime           @default(now()) @db.Timestamp(0)
+  updatedAt        DateTime           @default(now()) @db.Timestamp(0)
+  invoice_products invoice_products[]
+}
+
+model invoice_products {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  qty        String   @db.VarChar(100)
+  sale       String   @db.VarChar(100)
+  invoice_id BigInt   @db.UnsignedBigInt
+  invoices   invoices @relation(fields: [invoice_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  product_id BigInt   @db.UnsignedBigInt
+  products   products @relation(fields: [product_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  user_id    BigInt   @db.UnsignedBigInt
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdAt  DateTime @default(now()) @db.Timestamp(0)
+  updatedAt  DateTime @default(now()) @db.Timestamp(0)
+}
